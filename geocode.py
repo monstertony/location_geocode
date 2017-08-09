@@ -4,7 +4,7 @@ from pyexcel_xlsx import get_data
 from pyexcel_xlsx import save_data
 from collections import OrderedDict
 import json
-data = get_data("coordinates.xlsx")
+data = get_data("bikeinfo.xlsx")
 # print data['Blad1']
 n=0
 sheet={"Sheet 1":[["x","y","postcode","city","formatted_address"]]}

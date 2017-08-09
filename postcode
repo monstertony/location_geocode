@@ -3,27 +3,87 @@ from pyexcel_xlsx import get_data
 from pyexcel_xlsx import save_data
 from collections import OrderedDict
 import json
-filename = raw_input("Input filename is :")
-data = get_data(filename)
-n=0
-sheet={"Sheet 1":[["x","y","postcode","house_number","street","city"]]}
-for each in data['Blad1']:
-    n=n+1
-    if n>1:
-        print each[1]
-        print each[0]
-        url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=%f,%f&key=AIzaSyAMQRmEbUVvs7jZ5tW8hujZzUqqFy4syXc'%(each[1], each[0])
-        try:
-            resurl = requests.get(url)
-            resurl.raise_for_status()
-            dist = json.loads(resurl.text)
-            print dist["results"][0]["address_components"][-1]['long_name']
-            print dist["results"][0]["address_components"][0]['long_name']
-            print dist["results"][0]["address_components"][1]['long_name']
-            print dist["results"][0]["address_components"][2]['long_name']
-            sheet["Sheet 1"].append([each[1],each[0],dist["results"][0]["address_components"][-1]['long_name'],dist["results"][0]["address_components"][0]['long_name'],dist["results"][0]["address_components"][1]['long_name'],dist["results"][0]["address_components"][2]['long_name']])
-        except:
-            sheet["Sheet 1"].append([each[1], each[0],"error","error","error","error"])
-save_sheet = OrderedDict()
-save_sheet.update(sheet)
-save_data("out_put_test.xlsx", save_sheet)
+import sys
+from tkinter import *
+from tkinter import filedialog
+import re
+fn=""
+def myOpen():
+    myOpen = filedialog.askopenfile()
+    filename=re.findall("\'.*?\'",str(myOpen))
+    fn=filename[0].replace("\'","")
+    # return fn
+    data = get_data(fn)
+    n = 0
+    sheet = {"Sheet 1": [["id", "x", "y", "postcode", "house_number", "street", "city"]]}
+    for each in data['sheet']:
+        n = n + 1
+        if n > 1 and n < 10:
+            try:
+                print each[3]
+                print each[2]
+                url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=%f,%f&key=AIzaSyAMQRmEbUVvs7jZ5tW8hujZzUqqFy4syXc' % (
+                each[3], each[2])
+                try:
+                    resurl = requests.get(url)
+                    resurl.raise_for_status()
+                    dist = json.loads(resurl.text)
+                    print dist["results"][0]["address_components"][-1]['long_name']
+                    print dist["results"][0]["address_components"][0]['long_name']
+                    print dist["results"][0]["address_components"][1]['long_name']
+                    print dist["results"][0]["address_components"][2]['long_name']
+                    sheet["Sheet 1"].append(
+                        [each[0], each[3], each[2], dist["results"][0]["address_components"][-1]['long_name'],
+                         dist["results"][0]["address_components"][0]['long_name'],
+                         dist["results"][0]["address_components"][1]['long_name'],
+                         dist["results"][0]["address_components"][2]['long_name']])
+                except:
+                    sheet["Sheet 1"].append([each[0], each[3], each[2], "error", "error", "error", "error"])
+            except:
+                sheet["Sheet 1"].append([each[0], "error", "error", "error", "error", "error", "error"])
+    save_sheet = OrderedDict()
+    save_sheet.update(sheet)
+    save_data("out_put.xlsx", save_sheet)
+    mlabel4 = Label(myApp, text="finished").pack()
+
+myApp = Tk()
+# create a string variable
+ment = StringVar()
+
+# set the size of window
+myApp.geometry('450x450+200+200')
+
+myApp.title('Myapp')
+
+mLabel = Label(myApp, text='choose excel file').pack()
+
+mButton = Button(myApp, text='choose', command=myOpen).pack()
+
+myApp.mainloop()
+# filename = raw_input("Input filename is :")
+# data = get_data(fn)
+# n=0
+# sheet={"Sheet 1":[["id","x","y","postcode","house_number","street","city"]]}
+# for each in data['sheet']:
+#     n=n+1
+#     if n>1 and n<10:
+#         try:
+#             print each[3]
+#             print each[2]
+#             url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=%f,%f&key=AIzaSyAMQRmEbUVvs7jZ5tW8hujZzUqqFy4syXc'%(each[3], each[2])
+#             try:
+#                 resurl = requests.get(url)
+#                 resurl.raise_for_status()
+#                 dist = json.loads(resurl.text)
+#                 print dist["results"][0]["address_components"][-1]['long_name']
+#                 print dist["results"][0]["address_components"][0]['long_name']
+#                 print dist["results"][0]["address_components"][1]['long_name']
+#                 print dist["results"][0]["address_components"][2]['long_name']
+#                 sheet["Sheet 1"].append([each[0],each[3],each[2],dist["results"][0]["address_components"][-1]['long_name'],dist["results"][0]["address_components"][0]['long_name'],dist["results"][0]["address_components"][1]['long_name'],dist["results"][0]["address_components"][2]['long_name']])
+#             except:
+#                 sheet["Sheet 1"].append([each[0],each[3], each[2],"error","error","error","error"])
+#         except:
+#             sheet["Sheet 1"].append([each[0], "error", "error", "error", "error", "error", "error"])
+# save_sheet = OrderedDict()
+# save_sheet.update(sheet)
+# save_data("out_put.xlsx", save_sheet)
