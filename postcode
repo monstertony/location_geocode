@@ -1,0 +1,29 @@
+import requests
+from pyexcel_xlsx import get_data
+from pyexcel_xlsx import save_data
+from collections import OrderedDict
+import json
+filename = raw_input("Input filename is :")
+data = get_data(filename)
+n=0
+sheet={"Sheet 1":[["x","y","postcode","house_number","street","city"]]}
+for each in data['Blad1']:
+    n=n+1
+    if n>1:
+        print each[1]
+        print each[0]
+        url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=%f,%f&key=AIzaSyAMQRmEbUVvs7jZ5tW8hujZzUqqFy4syXc'%(each[1], each[0])
+        try:
+            resurl = requests.get(url)
+            resurl.raise_for_status()
+            dist = json.loads(resurl.text)
+            print dist["results"][0]["address_components"][-1]['long_name']
+            print dist["results"][0]["address_components"][0]['long_name']
+            print dist["results"][0]["address_components"][1]['long_name']
+            print dist["results"][0]["address_components"][2]['long_name']
+            sheet["Sheet 1"].append([each[1],each[0],dist["results"][0]["address_components"][-1]['long_name'],dist["results"][0]["address_components"][0]['long_name'],dist["results"][0]["address_components"][1]['long_name'],dist["results"][0]["address_components"][2]['long_name']])
+        except:
+            sheet["Sheet 1"].append([each[1], each[0],"error","error","error","error"])
+save_sheet = OrderedDict()
+save_sheet.update(sheet)
+save_data("out_put_test.xlsx", save_sheet)
